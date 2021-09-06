@@ -105,6 +105,7 @@ FasterTransformerEncoder::~FasterTransformerEncoder() {
 }
 
 Tensor FasterTransformerEncoder::forward(Tensor input, Tensor attr_mask, Tensor trt_seqlen_offset, Tensor sequence_id_offset) {
+  PRINT_FUNC_NAME_();
   CHECK_INPUT(input, _st);
   CHECK_INPUT(attr_mask, _st);
   TORCH_CHECK(attr_mask.dim()==4, "Invalid rank. The rank of attention mask should be 4 ([batch_size, 1, seq_len, seq_len])");

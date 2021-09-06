@@ -197,6 +197,16 @@ class CustomEncoder(torch.nn.Module):
             trt_seq_len = torch.reshape(t, [-1])
             trt_seq_len = torch.cat([trt_seq_len, torch.tensor([batch * max_seq_len], device='cuda').to(trt_seq_len.dtype)], dim=0).to(torch.int32)
         for i in range(self.layer_num):
+            print(f'i: {i}')
+            print(f'self.encoders[i]: {self.encoders[i]}')
+            # print(f'hidden_states: {hidden_states}')
+            print(f'hidden_states.shape: {hidden_states.shape}')
+            # print(f'attention_mask: {attention_mask}')
+            print(f'attention_mask.shape: {attention_mask.shape}')
+            # print(f'trt_seq_len: {trt_seq_len}')
+            print(f'trt_seq_len.shape: {trt_seq_len.shape}')
+            # print(f'sequence_id_offset: {sequence_id_offset}')
+            print(f'sequence_id_offset.shape: {sequence_id_offset.shape}')
             hidden_states = self.encoders[i].forward(hidden_states, attention_mask, trt_seq_len, sequence_id_offset)
         if self.remove_padding:
             hidden_states = self.rebuild_padding(hidden_states, sequence_id_offset, attention_mask, 0)

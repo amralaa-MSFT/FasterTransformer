@@ -63,11 +63,21 @@ enum class AllocatorType
   TH
 };
 
-#define PRINT_FUNC_NAME_()                                          \
+// #define PRINT_FUNC_NAME_()                                          \
+//   do                                                                \
+//   {                                                                 \
+//     std::cout << "[FT][CALL] " << __FUNCTION__ << " " << __func__ << " " << __FILE__ << ":" << __LINE__ << std::endl; \
+//   } while (0)
+
+#define DLOG(...)                                          \
   do                                                                \
   {                                                                 \
-    std::cout << "[FT][CALL] " << __FUNCTION__ << " " << std::endl; \
+    std::cout << "[FT] [amralaa] [DEBUG]: "; \
+    printf(__VA_ARGS__); \
+    std::cout << " func: " << __FUNCTION__ << " i.e. " << __PRETTY_FUNCTION__ << " at: " << __FILE__ << ":" << __LINE__ << std::endl; \
   } while (0)
+
+#define PRINT_FUNC_NAME_() DLOG("function call")
 
 static double diffTime(timeval start, timeval end)
 {

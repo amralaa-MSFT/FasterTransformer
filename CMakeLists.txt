@@ -41,6 +41,7 @@ if(BUILD_PYT)
       add_definitions(-DLEGACY_THS=1)
     endif()
   endif()
+  message(">>> NVIDIA PyTorch version: ${NVIDIA_PYTORCH_VERSION}")
 endif()
 
 if(BUILD_PYT OR BUILD_GPT)

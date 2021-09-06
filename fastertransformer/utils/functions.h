@@ -431,6 +431,7 @@ void cublasMM_cublasLtMM_wrapper(cublasLtHandle_t ltHandle, cublasHandle_t handl
 
     cudaDataType_t computeType = is_fp16 ? CUDA_R_16F : CUDA_R_32F;
 
+    DLOG("m: %d n: %d k: %d", m, n, k);
     check_cuda_error(cublasGemmEx(handle, transa, transb, m, n, k, alpha,
                                   A, Atype, lda,
                                   B, Btype, ldb,
@@ -683,12 +684,22 @@ void cublasMM_cublasLtMM_wrapper_decoder(cublasLtHandle_t ltHandle, cublasHandle
 template <typename T>
 int getAlgoIdFromMap(T& cublasAlgoMap, int batchCount, int m, int n, int k, int dataType)
 {
+  PRINT_FUNC_NAME_();
   char mark[256];
   sprintf(mark, "%d_%d_%d_%d_%d", batchCount, m, n, k, dataType);
-  if (cublasAlgoMap.find(mark) != cublasAlgoMap.end())
+  DLOG("mark: %s", mark);
+  DLOG("dataType: %d", dataType);
+  if (cublasAlgoMap.find(mark) != cublasAlgoMap.end()) {
+    DLOG("mark found");
     return cublasAlgoMap[mark].algoId;
-  else
+  }
+  else {
+    DLOG("mark not found");
+    DLOG("FLOAT_DATATYPE: %d", FLOAT_DATATYPE);
+    DLOG("CUBLAS_GEMM_DEFAULT: %d", CUBLAS_GEMM_DEFAULT);
+    DLOG("CUBLAS_GEMM_DEFAULT_TENSOR_OP: %d", CUBLAS_GEMM_DEFAULT_TENSOR_OP);
     return dataType == FLOAT_DATATYPE ? CUBLAS_GEMM_DEFAULT : CUBLAS_GEMM_DEFAULT_TENSOR_OP;
+  }
 }
 
 }

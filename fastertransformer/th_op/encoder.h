@@ -100,6 +100,7 @@ public:
                Tensor& trt_seqlen_offset,
                Tensor& sequence_id_offset,
                bool removing_padding) override {
+    DLOG("start. batch_size: %d, seq_len: %d", batch_size, seq_len);
     BertEncoderTransformer<EncoderTraits_>* encoder_tmp = new BertEncoderTransformer<EncoderTraits_>(encoder);
     auto stream = at::cuda::getCurrentCUDAStream().stream();
     encoder_param.stream = stream;
@@ -127,6 +128,7 @@ public:
     encoder_tmp->freeBuffer();
     delete encoder_tmp;
     delete allocator;
+    DLOG("end");
   }
 
 private:

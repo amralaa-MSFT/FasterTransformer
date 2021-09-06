@@ -1,0 +1,9 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureSettings": {
+        "SM": "61",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_PYT": "ON",
+    },
+    // "cmake.buildDirectory": "${workspaceFolder}/build.0906-PT-debug",
+}

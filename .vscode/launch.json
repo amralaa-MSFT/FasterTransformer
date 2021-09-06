@@ -1,0 +1,45 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Decoding Sample",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/pytorch/decoding_sample.py",
+            "cwd": "${workspaceFolder}/build",
+            "justMyCode": false,
+            "rules": [
+                { "module": "torch", "include": false },
+            ],
+            "env": {
+                "PYTORCH_JIT": "0",
+            },
+            "console": "integratedTerminal",
+            "args": [
+                "8", "6", "32", "8", "64", "4", "31538", "--time"
+            ]
+        },
+        {
+            "name": "Encoder Sample",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/pytorch/encoder_sample.py",
+            "cwd": "${workspaceFolder}/build",
+            "justMyCode": false,
+            "rules": [
+                { "module": "torch", "include": false },
+            ],
+            "env": {
+                "PYTORCH_JIT": "0",
+            },
+            "console": "integratedTerminal",
+            "args": [
+                "4", "12", "32", "12", "64", "--time"
+                // "32", "12", "32", "12", "64", "--time"
+            ]
+        },
+    ]
+}

@@ -591,7 +591,9 @@ public:
 #endif
     try
     {
+      DLOG("before attention->forward");
       attention_->forward();
+      DLOG("before attention->forward");
 
 #ifndef NDEBUG
       cudaDeviceSynchronize();

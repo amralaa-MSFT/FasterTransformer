@@ -816,10 +816,13 @@ class OpenMultiHeadAttention: IMultiHeadAttention<OpType_>
     const int k = head_num_ * size_per_head_;
     const int n = k;
     const DataType_ alpha = (DataType_)1.0f, beta = (DataType_)0.0f;
+    DLOG("m: %d n: %d k: %d", m, n, k);
 
     try
     { 
+      DLOG("here");
       if (int8_mode_ != 0){
+        DLOG("here");
         //K_int_buf_ V_int_buf_ should point to correct buffer according to param_.valid_word_num
         if (int8_mode_ == 1) {
           K_int_buf_ = (int*)Q_int_buf_ + param_.valid_word_num * head_num_ * size_per_head_;
@@ -933,9 +936,19 @@ class OpenMultiHeadAttention: IMultiHeadAttention<OpType_>
         }
       }
       else{      
+        DLOG("here");
+        DLOG("not int8 mode");
+        DLOG("is_fuse_QKV_: %d", is_fuse_QKV_);
         if(is_fuse_QKV_ == true)
         {
+          DLOG("here");
           int algoId = getAlgoIdFromMap(cublasAlgoMap_, 3, n, m, k, AType_ == CUDA_R_16F ? HALF_DATATYPE : FLOAT_DATATYPE);
+          DLOG("algoId: %d", algoId);
+          if (algoId == -1) {
+            DLOG("algoId == -1");
+          }
+          DLOG("before check_cuda_error");
+          DLOG("here");
           check_cuda_error(cublasGemmBatchedEx(param_.cublas_handle, 
                            CUBLAS_OP_N, CUBLAS_OP_N, 
                            n, m, k, 
@@ -947,59 +960,76 @@ class OpenMultiHeadAttention: IMultiHeadAttention<OpType_>
                            3,
                            computeType_, 
                            static_cast<cublasGemmAlgo_t>(algoId)));
+          DLOG("here");
+          DLOG("after check_cuda_error");
         }
         else
         {
+          DLOG("here");
+          DLOG("not fuse QKV");
+          DLOG("before calling cublasMM_cublasLtMM_wrapper");
           cublasMM_cublasLtMM_wrapper(param_.cublaslt_handle, param_.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, 
                            n, m, k, &alpha,
                            param_.self_attention.query_weight.kernel, AType_, n,
                            from_tensor, BType_, k,
                            &beta, (DataType_ *)query_buf_, CType_, n,
                            param_.stream, cublasAlgoMap_, sm_, cublas_workspace_);
+          DLOG("after calling cublasMM_cublasLtMM_wrapper");
 
 #ifndef NDEBUG
           cudaDeviceSynchronize();
           check_cuda_error(cudaGetLastError());
 #endif
+          DLOG("before 2 calling cublasMM_cublasLtMM_wrapper");
           cublasMM_cublasLtMM_wrapper(param_.cublaslt_handle, param_.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, 
                            n, m, k, &alpha,
                            param_.self_attention.key_weight.kernel, AType_, n,
                            to_tensor, BType_, k,
                            &beta, (DataType_ *)key_buf_, CType_, n,
                            param_.stream, cublasAlgoMap_, sm_, cublas_workspace_); 
+          DLOG("after 2 calling cublasMM_cublasLtMM_wrapper");
 
 #ifndef NDEBUG
           cudaDeviceSynchronize();
           check_cuda_error(cudaGetLastError());
 #endif
 
+          DLOG("before 3 calling cublasMM_cublasLtMM_wrapper");
           cublasMM_cublasLtMM_wrapper(param_.cublaslt_handle, param_.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, 
                            n, m, k, &alpha,
                            param_.self_attention.value_weight.kernel, AType_, n,
                            to_tensor, BType_, k,
                            &beta, (DataType_ *)value_buf_, CType_, n,
                            param_.stream, cublasAlgoMap_, sm_, cublas_workspace_); 
+          DLOG("after 3 calling cublasMM_cublasLtMM_wrapper");
         }
+
+        DLOG("here");
      
 #ifndef NDEBUG
         cudaDeviceSynchronize();
         check_cuda_error(cudaGetLastError());
 #endif
+        DLOG("here");
         int S;
         if(dispatcher_fp16.get())
           S = dispatcher_fp16->getSFromMaxSeqLen(from_seq_len_);
+        DLOG("here");
         if(dispatcher_fp16.get() && OpType_==OperationType::FP16 && dispatcher_fp16->isValid(S) && param_.trt_seqlen_offset != nullptr)
         {
           // This function is only used when we satisfy the following conditions:
           // 1. FP16
           // 2. GPU SM >= 72
           //  3. Temporally add seqlen <= 384 limitation because the current fused mha cannot handle seqlen > 384.
+          DLOG("here");
           fused_multiHeadAttr_kernelLauncher(S);
         }
         else
         {
+          DLOG("here");
           DataType_ scalar = 1 / (sqrtf(size_per_head_ * 1.0f) * q_scaling_);
 
+          DLOG("here");
           multiHeadAttr_nofuse_kernelLauncher(
             param_.stream,
             param_.cublas_handle,
@@ -1019,10 +1049,14 @@ class OpenMultiHeadAttention: IMultiHeadAttention<OpType_>
             int8_mode_,
             scalar);
         }
+        DLOG("here");
       }
+      DLOG("here");
     }
     catch(std::runtime_error& error)
     {
+      DLOG("Error");
+      std::cout << error.what() << std::endl;
       throw error;
     }
   }
